@@ -71,7 +71,6 @@ car_4_width, car_1_heigh = car_4_image.get_size()
 
 list_cars = []
 
-car_op = 
 
 car_1_x = road_x + car_1_width + 20
 car_1_y = 0 - car_1_heigh * (randint(1, 4))
