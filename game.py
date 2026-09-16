@@ -4,6 +4,9 @@ import pygame, sys
 
 from random import randint
 
+import pygame.time
+from pygame.version import PygameVersion
+
 from snake import *
 
 from DEV.my_games.first_project.snake import HeadSnake
@@ -12,14 +15,13 @@ from constants import *
 
 pygame.init()
 
+clock = pygame.time.Clock()
 
 game_over = pygame.font.Font(None, 50)
 
 head = HeadSnake()
 ass = AssSnake(head)
-apple = Apple(head)
-
-
+apple = Apple()
 
 pygame.display.set_caption("THE SNAKE")
 
@@ -29,59 +31,33 @@ while game:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-
         if event.type == pygame.KEYDOWN:
-
             if event.key == pygame.K_LEFT:
-                head.is_moving_left = True
+                head.direction = "left"
+            elif event.key == pygame.K_RIGHT:
+                head.direction = "right"
+            elif event.key == pygame.K_UP:
+                head.direction = "up"
+            elif event.key == pygame.K_DOWN:
+                head.direction = "down"
 
-            if event.key == pygame.K_RIGHT:
-               head.is_moving_right = True
-
-            if event.key == pygame.K_UP:
-                head.is_moving_up = True
-
-            if event.key == pygame.K_DOWN:
-                head.is_moving_down = True
-
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
-                head.is_moving_left = False
-
-            if event.key == pygame.K_RIGHT:
-                head.is_moving_right = False
-
-            if event.key == pygame.K_UP:
-                head.is_moving_up = False
-
-            if event.key == pygame.K_DOWN:
-                head.is_moving_down = False
-
-    if head.is_moving_left:
-        head.x -= SPEED
-
-    if head.is_moving_right:
-        head.x += SPEED
-
-    if head.is_moving_up:
-        head.y -= SPEED
-
-    if head.is_moving_down:
-        head.y += SPEED
 
     SCREEN.fill(color="White")
 
-    head.spawn()
-    head.update()
-    ass.spawn()
-    ass.update_coordinate(head)
+    head.move()
+    ass.add_ass(head, apple)
     apple.spawn()
+    head.spawn()
+    ass.spawn(head)
 
 
+    clock.tick(10)
     pygame.display.update()
 
+    if len(ass.ass_length) > 2:
+        game = False
 
-game_over_text = game_over.render("GAME OVER", True, "white")
+game_over_text = game_over.render("GAME OVER", True, "black")
 game_over_rect = game_over_text.get_rect()
 game_over_rect.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 SCREEN.blit(game_over_text, game_over_rect)

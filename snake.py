@@ -4,82 +4,98 @@ from constants import *
 
 import pygame
 
+
 class Snake:
     def __init__(self):
-        self.width = 20
-        self.height = 20
-        self.color = choice(["black", "grey", "blue", "red", "Purple "] )
-        self.speed = SPEED
-        self.is_moving_left, self.is_moving_right, self.is_moving_up, self.is_moving_down = False, False, False, False
+        self.x = None
+        self.y = None
+        self.width = SIZE
+        self.height = SIZE
+        self.color = choice(COLORS)
 
-    def spawn(self):
-        pass
+
 
 
 class HeadSnake(Snake):
-
     def __init__(self):
         super().__init__()
-        self.x = randint(0, SCREEN_WIDTH)
-        self.y = randint(0, SCREEN_HEIGHT)
-        self.need_coordinates = []
-
+        self.x = randint(0, GREED_WIDTH) * GREED_SIZE
+        self.y = randint(0, GREED_HEIGHT) * GREED_SIZE
+        self.speed = SPEED
+        self.direction = "up"
+        self.position =[(self.x, self.y )]
 
     def spawn(self):
-        pygame.draw.rect(SCREEN,self.color, (self.x, self.y, self.width, self.height))
-        # self.x += SPEED
-
-    def move_left(self):
-        self.is_moving_left = True
+        pygame.draw.rect(SCREEN, self.color,(self.x,self.y, SIZE, SIZE))
 
 
-    def move_right(self):
-        self.is_moving_right = True
 
-    def move_up(self):
-            self.is_moving_up = True
+    def move(self):
+        if self.direction == "left":
+            self.x -= SPEED
+        elif self.direction == "right":
+            self.x += SPEED
+        elif self.direction == "up":
+            self.y -= SPEED
+        elif self.direction == "down":
+            self.y += SPEED
 
-    def move_down(self):
-        self.is_moving_down = True
+        self.update_position()
 
-    def update(self):
-        self.need_coordinates.append((self.x + 20, self.y))
-        if len(self.need_coordinates) > 100:
-            self.need_coordinates.pop(0)
+    def update_position(self):
+        if self.x >= SCREEN_WIDTH:
+            self.x = 0
+        elif self.x < 0:
+            self.x = SCREEN_WIDTH - GREED_SIZE
+        if self.y >= SCREEN_HEIGHT:
+            self.y = 0
+        elif self.y < 0:
+            self.y = SCREEN_HEIGHT - GREED_SIZE
+
+        self.position.insert(0, (self.x, self.y))
+
+
 
 
 class AssSnake(Snake):
     def __init__(self, head):
         super().__init__()
-        self.need_coordinates = []
-        self.x, self.y = head.x, head.y
+        self. ass_length = []
 
 
-    def spawn(self):
-        pygame.draw.rect(SCREEN, self.color, (self.x, self.y, self.width, self.height))
 
-    def update_coordinate(self, head):
-        if head.need_coordinates:
-            self.x, self.y = head.need_coordinates[0]
+    def add_ass(self, head,apple):
+        if apple.x == head.x and apple.y == head.y:
+            apple.x = randint(0, GREED_WIDTH) * GREED_SIZE
+            apple.y = randint(0, GREED_HEIGHT) * GREED_SIZE
+
+            new_segment = Snake()
+            self.ass_length.append(new_segment)
+
+    def spawn(self,head):
+        max_length = len(self.ass_length) + 1
+        if len(head.position) > max_length:
+            head.position.pop()
+
+
+
+        for index, segment in enumerate(self.ass_length):
+            # Индекс + 1, так как на 0-й позиции всегда сама голова
+            if index + 1 < len(head.position):
+                segment.x, segment.y = head.position[index + 1]
+                pygame.draw.rect(SCREEN, segment.color, (segment.x, segment.y, SIZE, SIZE))
+
 
 
 
 class Apple(Snake):
-    def __init__(self, head):
+    def __init__(self):
         super().__init__()
-        self.speed = 0
-        self.x = randint(0, SCREEN_WIDTH)
-        self.y = randint(0, SCREEN_HEIGHT)
-        self.head_x = head.x
-        self.head_y = head.y
+        self.x = randint(0, GREED_WIDTH) * GREED_SIZE
+        self.y = randint(0, GREED_HEIGHT) * GREED_SIZE
+
 
     def spawn(self):
-        if self.x == self.head_x and self.y == self.head_y:
-            self.x = randint(0, SCREEN_WIDTH)
-            self.y = randint(0, SCREEN_HEIGHT)
-        pygame.draw.circle(SCREEN, self.color, (self.x, self.y), RADIUS)
+        pygame.draw.rect(SCREEN, self.color,(self.x,self.y, SIZE, SIZE))
 
-    def add_piece_ass(self, head):
-        if self.x + RADIUS == head.x or head.x + RADIUS == head.y:
-            AssSnake(head)
 
